@@ -18,9 +18,6 @@ const CropImage: React.ForwardRefRenderFunction<Image, CropImageProps> = (
   props,
   ref,
 ) => {
-  const {source, mask} = props;
-  if (source == null || mask == null)
-    return <Text>Expected parameter is missing source or mask</Text>;
   return <RCTCropImageView {...props} />;
 };
 

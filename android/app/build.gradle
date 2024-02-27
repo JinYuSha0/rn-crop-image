@@ -75,6 +75,9 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
 
     namespace "com.rncrop"
+    aaptOptions {
+        cruncherEnabled = false
+    }
     defaultConfig {
         applicationId "com.rncrop"
         minSdkVersion rootProject.ext.minSdkVersion

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -109,6 +110,7 @@ public class CropImageView extends GenericDraweeView {
     private boolean mProgressiveRenderingEnabled;
     private ReadableMap mHeaders;
     private Postprocessor cropImagePostprocessor;
+    private int mReplacePixelColor = Color.TRANSPARENT;
 
     public void updateCallerContext(@Nullable Object callerContext) {
         if (!Objects.equal(this.mCallerContext, callerContext)) {
@@ -149,9 +151,9 @@ public class CropImageView extends GenericDraweeView {
                 CropImageView self = CropImageView.this;
                 Bitmap mask = self.mImageMaskBitmap;
                 if (mask != null && self.validMaskSize()) {
-                    CropImageCore.crop(origin, mask);
-                    self.releaseMaskBitmap();
+                    CropImageCore.crop(origin, mask, self.mReplacePixelColor);
                 }
+                self.releaseMaskBitmap();
             }
         };
     }
@@ -328,6 +330,7 @@ public class CropImageView extends GenericDraweeView {
     }
 
     public void setMasks(@Nullable ReadableArray masks) {
+        releaseMaskBitmap();
         List<ImageSource> tmpMasks = new LinkedList();
         ImageSource src;
         if (masks != null && masks.size() != 0) {
@@ -336,10 +339,10 @@ public class CropImageView extends GenericDraweeView {
                 src = new ImageSource(this.getContext(), source.getString("uri"));
                 if (Uri.EMPTY.equals(src.getUri())) {
                     this.warnImageMask(source.getString("uri"));
-                    src = ImageSource.getTransparentBitmapImageSource(this.getContext());
+                } else {
+                    tmpMasks.add(src);
                 }
 
-                tmpMasks.add(src);
             } else {
                 for(int idx = 0; idx < masks.size(); ++idx) {
                     ReadableMap source = masks.getMap(idx);
@@ -353,7 +356,7 @@ public class CropImageView extends GenericDraweeView {
                 }
             }
         } else {
-            tmpMasks.add(ImageSource.getTransparentBitmapImageSource(this.getContext()));
+            this.warnImageMask("null");
         }
 
         if (!this.mMasks.equals(tmpMasks)) {
@@ -365,10 +368,12 @@ public class CropImageView extends GenericDraweeView {
                 this.mMasks.add(src);
             }
 
-            setMaskImage();
-
             this.mIsDirty = true;
         }
+    }
+
+    public void setReplacePixelColor(@Nullable String replacePixelColor) {
+        this.mReplacePixelColor = replacePixelColor == null ? Color.TRANSPARENT : Color.parseColor(replacePixelColor);
     }
 
     public void setDefaultSource(@Nullable String name) {
@@ -556,7 +561,9 @@ public class CropImageView extends GenericDraweeView {
 
         this.mImageMask = (ImageSource)this.mMasks.get(0);
 
-        if (this.mImageMaskBitmap != null) return;
+        if (this.mImageMaskBitmap != null) {
+            releaseMaskBitmap();
+        }
 
         try {
             this.mImageMaskBitmap = CropImageCore.getBitmapByUri(this.getContext(), this.mImageMask.getUri());

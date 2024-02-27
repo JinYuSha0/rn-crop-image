@@ -113,6 +113,13 @@ public class CropImageManager extends SimpleViewManager<CropImageView> {
     }
 
     @ReactProp(
+            name = "replacePixelColor"
+    )
+    public void setReplacePixelColor(CropImageView view, @Nullable String replacePixelColor) {
+        view.setReplacePixelColor(replacePixelColor);
+    }
+
+    @ReactProp(
             name = "blurRadius"
     )
     public void setBlurRadius(CropImageView view, float blurRadius) {

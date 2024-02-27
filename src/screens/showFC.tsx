@@ -1,8 +1,8 @@
 import {StyleSheet, View} from 'react-native';
 import {IMG_SOURCE} from '../helper';
-import CropImage from '../components/CropImage';
 import React from 'react';
 import AutoSizeImg from '../components/AutoSizeImage';
+import CropImage from '../components/CropImage';
 
 const ShowFC: React.FC<{}> = props => {
   return (
@@ -14,6 +14,17 @@ const ShowFC: React.FC<{}> = props => {
       <AutoSizeImg source={IMG_SOURCE.origin} width={300}>
         {(source, size) => (
           <CropImage style={[size]} source={source} mask={IMG_SOURCE.mask} />
+        )}
+      </AutoSizeImg>
+      <View style={styles.padding} />
+      <AutoSizeImg source={IMG_SOURCE.origin} width={300}>
+        {(source, size) => (
+          <CropImage
+            style={[size, {borderRadius: 20}]}
+            source={source}
+            mask={IMG_SOURCE.mask}
+            replacePixelColor="#0000CD"
+          />
         )}
       </AutoSizeImg>
     </View>
